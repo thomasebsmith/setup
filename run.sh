@@ -110,6 +110,7 @@ get_source() {
   source_folder="$2"
   if prompt_to_continue "Attempting to install from $url." "y"; then
     git clone "$url" "$source_folder"
+    ./install_source.sh "$source_folder"
   fi
 }
 
@@ -121,5 +122,6 @@ read_sources() {
   done 9<sources
 }
 
+cd "$(dirname "$0")" || exit 1
 check_features
 read_sources
