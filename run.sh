@@ -110,7 +110,8 @@ get_source() {
   source_folder="$2"
   if prompt_to_continue "Attempting to install from $url." "y"; then
     git clone "$url" "$source_folder"
-    ./install_source.sh "$source_folder"
+    ./install_source.sh "$source_folder" "$features"
+    # TODO: Get newly installed features from ./install_source.sh
   fi
 }
 
