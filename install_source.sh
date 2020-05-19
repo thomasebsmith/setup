@@ -5,6 +5,16 @@ FALSE="1"
 
 features=""
 
+append() {
+  list="$1"
+  word="$2"
+  if [ "$list" = "" ]; then
+    echo "$word"
+  else
+    echo "$list $word"
+  fi
+}
+
 contains() {
   string="$1"
   word="$2"
@@ -34,11 +44,7 @@ verify_dependencies() {
       if [ contains "$1" "$line" ]; then
         return 1
       fi
-      if [ "$2" = "" ]; then
-        set -- "$1" "$line"
-      else
-        set -- "$1" "$2 $line"
-      fi
+      set -- "$1" "$(append "$2" "$line")"
     fi
   done 8<dependencies
   for feature in $(echo "$2"); do
@@ -67,11 +73,19 @@ install_feature() {
   return 0
 }
 
+to_install=""
+get_default_features() {
+  while read -r line <&8; do
+    to_install="$(append "$to_install" "$line")"
+  done 8<default_features
+}
+
 # Change the current directory to the cloned source.
 cd "$(dirname "$0")" || exit 1
 cd "$1" || exit 1
 
 features="$2"
+get_default_features
 
 # TODO
 # cd features
