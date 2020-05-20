@@ -3,6 +3,10 @@
 TRUE="0"
 FALSE="1"
 
+red="\033[0;31m"
+green="\033[0;32m"
+nocolor="\033[0m"
+
 features=""
 
 append() {
@@ -69,6 +73,7 @@ install_feature() {
     verify_dependencies "" || return 1
   fi
   ./run.sh || return 1
+  features="$(append "$features" "$1")"
   cd .. || return 1
   return 0
 }
@@ -80,13 +85,25 @@ get_default_features() {
   done 8<default_features
 }
 
+install_all() {
+  cd features || return 1
+  for feature_to_install in $(echo "$to_install"); do
+    if has_feature "$feature_to_install"; then
+      printf "${green}✓${nocolor} %s already installed\n" "$feature_to_install"
+      continue
+    fi
+    if install_feature "$feature_to_install"; then
+      printf "${green}✓${nocolor} %s installed\n" "$feature_to_install"
+    else
+      printf "${red}✗${nocolor} %s installation failed\n" "$feature_to_install"
+    fi
+  done
+}
+
 # Change the current directory to the cloned source.
 cd "$(dirname "$0")" || exit 1
 cd "$1" || exit 1
 
 features="$2"
 get_default_features
-
-# TODO
-# cd features
-# install_feature my_feature # from default features
+install_all || return 1
