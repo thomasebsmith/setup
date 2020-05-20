@@ -45,7 +45,7 @@ verify_dependencies() {
   while read -r line <&8; do
     if ! has_feature "$line"; then
       # If this feature is depended on by itself, terminate.
-      if [ contains "$1" "$line" ]; then
+      if contains "$1" "$line"; then
         return 1
       fi
       set -- "$1" "$(append "$2" "$line")"
