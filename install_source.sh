@@ -7,6 +7,8 @@ red="\033[0;31m"
 green="\033[0;32m"
 nocolor="\033[0m"
 
+feature_sep="&&"
+
 features=""
 
 append() {
@@ -43,18 +45,48 @@ verify_dependencies() {
   # $2 is modified to contain the list of features to add.
   set -- "$1" ""
   while read -r line <&8; do
-    if ! has_feature "$line"; then
-      # If this feature is depended on by itself, terminate.
-      if contains "$1" "$line"; then
-        return 1
+    feature_list=""
+    fulfilled="$FALSE"
+    for possible_feature in $(echo "$line"); do
+      if has_feature "$possible_feature"; then
+        fulfilled="$TRUE"
+        break
+      else
+        # If this feature is depended on by itself, don't install it.
+        if contains "$1" "$possible_feature"; then
+          continue
+        fi
+        # Features must not be the feature separator &&
+        if [ "$possible_feature" = "$feature_sep" ]; then
+          return 1
+        fi
+        feature_list="$(append "$feature_list" "$possible_feature")"
       fi
-      set -- "$1" "$(append "$2" "$line")"
+    done
+    if [ "$fulfilled" = "$FALSE" ]; then
+      if [ "$2" = "" ]; then
+        set -- "$1" "$feature_list"
+      else
+        set -- "$1" "$2 $feature_sep $feature_list"
+      fi
     fi
   done 8<dependencies
+  fulfilled="$FALSE"
   for feature in $(echo "$2"); do
-    install_feature "$feature" "$1 $feature"
+    if [ "$fulfilled" = "$TRUE" ]; then
+      if [ "$feature" = "$feature_sep" ]; then
+        fulfilled="$FALSE"
+      fi
+      continue
+    fi
+    if [ "$feature" = "$feature_sep" ]; then
+      return 1
+    fi
+    if install_feature "$feature" "$1 $feature"; then
+      fulfilled="$TRUE"
+    fi
   done
-  return 0
+  return "$fulfilled"
 }
 
 # install_feature expects to be in the "features" directory
