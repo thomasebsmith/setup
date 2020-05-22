@@ -3,9 +3,9 @@
 TRUE=0
 FALSE=1
 
-red="\033[0;31m"
-green="\033[0;32m"
-nocolor="\033[0m"
+red="$(tput setaf 1 2>/dev/null)"
+green="$(tput setaf 2 2>/dev/null)"
+reset="$(tput sgr0 2>/dev/null)"
 
 commands="bash clang dash g++ gcc git python python3 vim zsh"
 
@@ -43,12 +43,26 @@ check_features() {
   # Check commands
   for command in $(echo "$commands"); do
     if command_exists "$command"; then
-      printf "${green}✓${nocolor} %s command\n" "$command"
+      printf "${green}✓${reset} %s command\n" "$command"
       add_feature "command-$command"
     else
-      printf "${red}✗${nocolor} %s command\n" "$command"
+      printf "${red}✗${reset} %s command\n" "$command"
     fi
   done
+
+  # Check other features
+  if [ -t 1 ]; then
+    add_feature "terminal-out"
+    printf "${green}✓${reset} terminal output\n"
+  else
+    printf "${red}✗${reset} terminal output\n"
+  fi
+  if [ -n "$(tput colors 2>/dev/null)" ]; then
+    add_feature "terminal-colors"
+    printf "${green}✓${reset} terminal colors\n"
+  else
+    printf "${red}✗${reset} terminal colors\n"
+  fi
 }
 
 prompt_to_continue() {

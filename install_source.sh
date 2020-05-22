@@ -3,9 +3,9 @@
 TRUE="0"
 FALSE="1"
 
-red="\033[0;31m"
-green="\033[0;32m"
-nocolor="\033[0m"
+red="$(tput setaf 1 2>/dev/null)"
+green="$(tput setaf 2 2>/dev/null)"
+reset="$(tput sgr0 2>/dev/null)"
 
 feature_sep="&&"
 
@@ -121,13 +121,13 @@ install_all() {
   cd features || return 1
   for feature_to_install in $(echo "$to_install"); do
     if has_feature "$feature_to_install"; then
-      printf "${green}✓${nocolor} %s already installed\n" "$feature_to_install"
+      printf "${green}✓${reset} %s already installed\n" "$feature_to_install"
       continue
     fi
     if install_feature "$feature_to_install"; then
-      printf "${green}✓${nocolor} %s installed\n" "$feature_to_install"
+      printf "${green}✓${reset} %s installed\n" "$feature_to_install"
     else
-      printf "${red}✗${nocolor} %s installation failed\n" "$feature_to_install"
+      printf "${red}✗${reset} %s installation failed\n" "$feature_to_install"
     fi
   done
 }

@@ -4,7 +4,8 @@ files, installed commands, installed applications, etc.) via a minimal set of
 shell commands.
 
 ## Requirements
-Currently, Setup expects to be run on a POSIX-compliant computer.
+Currently, Setup expects to be run on a POSIX-compliant computer with support
+for colors (`colors`, `sgr0`, and `setaf`) via `tput`.
 
 ## Usage
 ```sh
