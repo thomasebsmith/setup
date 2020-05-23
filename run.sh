@@ -7,7 +7,9 @@ red="$(tput setaf 1 2>/dev/null)"
 green="$(tput setaf 2 2>/dev/null)"
 reset="$(tput sgr0 2>/dev/null)"
 
-commands="bash clang dash g++ gcc git python python3 vim zsh"
+commands="bash cargo clang csh dash g++ gcc gem git go gzip gunzip ksh ld\
+ make md5 node npm java perl pip pod python python3 ruby rustc\
+ swift swiftc tar tcsh unzip vim wget zip zsh"
 
 features=""
 
