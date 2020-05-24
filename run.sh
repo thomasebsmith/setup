@@ -7,9 +7,10 @@ red="$(tput setaf 1 2>/dev/null)"
 green="$(tput setaf 2 2>/dev/null)"
 reset="$(tput sgr0 2>/dev/null)"
 
-commands="bash cargo clang csh dash g++ gcc gem git go gzip gunzip ksh ld\
- make md5 node npm java perl pip pod python python3 ruby rustc\
- swift swiftc tar tcsh unzip vim wget zip zsh"
+commands="bash brew cargo clang curl csh dash dig emacs g++ gcc\
+ gem git go gzip gunzip ksh ld less lynx\
+ make md5 mount nano node npm java perl ping pip pod python python3 ruby rustc\
+ ssh su sudo swift swiftc tac tar tcsh unzip vim wget which zip zsh"
 
 features=""
 
