@@ -71,14 +71,19 @@ verify_dependencies() {
       fi
     fi
   done 8<dependencies
+  set -- "$1" "$2" "$(pwd)"
+  cd .. || return 1
   fulfilled="$FALSE"
+  lastsep="$TRUE"
   for feature in $(echo "$2"); do
     if [ "$fulfilled" = "$TRUE" ]; then
       if [ "$feature" = "$feature_sep" ]; then
         fulfilled="$FALSE"
+        lastsep="$TRUE"
       fi
       continue
     fi
+    lastsep="$FALSE"
     if [ "$feature" = "$feature_sep" ]; then
       return 1
     fi
@@ -86,7 +91,9 @@ verify_dependencies() {
       fulfilled="$TRUE"
     fi
   done
-  return "$fulfilled"
+  cd "$3" || return 1
+  [ "$fulfilled" = "$TRUE" ] || [ "$lastsep" = "$TRUE" ];
+  return "$?"
 }
 
 # install_feature expects to be in the "features" directory
@@ -97,14 +104,15 @@ install_feature() {
   if [ "$#" -eq 3 ]; then
     for feature in $(echo "$2"); do
       if [ "$feature" = "$1" ]; then
+        cd ..
         return 1
       fi
     done
-    verify_dependencies "$2" || return 1
+    verify_dependencies "$2" || { cd ..; return 1; }
   else
-    verify_dependencies "" || return 1
+    verify_dependencies "" || { cd ..; return 1; }
   fi
-  ./run.sh || return 1
+  ./run.sh || { cd ..; return 1; }
   features="$(append "$features" "$1")"
   cd .. || return 1
   return 0
@@ -130,6 +138,7 @@ install_all() {
       printf "${red}✗${reset} %s installation failed\n" "$feature_to_install"
     fi
   done
+  cd .. || return 1
 }
 
 # Change the current directory to the cloned source.
@@ -137,5 +146,5 @@ cd "$(dirname "$0")" || exit 1
 cd "$1" || exit 1
 
 features="$2"
-get_default_features
-install_all || return 1
+get_default_features || exit 1
+install_all || exit 1
