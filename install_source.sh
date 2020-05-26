@@ -11,6 +11,8 @@ feature_sep="&&"
 
 features=""
 
+error=""
+
 append() {
   list="$1"
   word="$2"
@@ -58,6 +60,7 @@ verify_dependencies() {
         fi
         # Features must not be the feature separator &&
         if [ "$possible_feature" = "$feature_sep" ]; then
+          error="Invalid feature \"$possible_feature\"."
           return 1
         fi
         feature_list="$(append "$feature_list" "$possible_feature")"
@@ -72,26 +75,31 @@ verify_dependencies() {
     fi
   done 8<dependencies
   set -- "$1" "$2" "$(pwd)"
-  cd .. || return 1
+  cd .. || { error="cd failed."; return 1; }
   fulfilled="$FALSE"
   lastsep="$TRUE"
+  requirement=""
   for feature in $(echo "$2"); do
     if [ "$fulfilled" = "$TRUE" ]; then
       if [ "$feature" = "$feature_sep" ]; then
         fulfilled="$FALSE"
         lastsep="$TRUE"
+        requirement=""
       fi
       continue
     fi
     lastsep="$FALSE"
     if [ "$feature" = "$feature_sep" ]; then
+      error="Could not fulfill requirement \"$requirement\"."
       return 1
     fi
+    requirement="$(append "$requirement" "$feature")"
     if install_feature "$feature" "$1 $feature"; then
       fulfilled="$TRUE"
     fi
   done
-  cd "$3" || return 1
+  cd "$3" || { "cd failed."; return 1; }
+  error="Could not fulfill requirement \"$requirement\"."
   [ "$fulfilled" = "$TRUE" ] || [ "$lastsep" = "$TRUE" ];
   return "$?"
 }
@@ -112,7 +120,7 @@ install_feature() {
   else
     verify_dependencies "" || { cd ..; return 1; }
   fi
-  ./run.sh || { cd ..; return 1; }
+  ./run.sh || { cd ..; error="Install script failed."; return 1; }
   features="$(append "$features" "$1")"
   cd .. || return 1
   return 0
@@ -132,10 +140,11 @@ install_all() {
       printf "${green}✓${reset} %s already installed\n" "$feature_to_install"
       continue
     fi
-    if install_feature "$feature_to_install"; then
+    if install_feature "$feature_to_install" >/dev/null 2>&1; then
       printf "${green}✓${reset} %s installed\n" "$feature_to_install"
     else
-      printf "${red}✗${reset} %s installation failed\n" "$feature_to_install"
+      printf "${red}✗${reset} %s installation failed (%s)\n" \
+        "$feature_to_install" "$error"
     fi
   done
   cd .. || return 1
