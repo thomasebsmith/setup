@@ -16,3 +16,13 @@ $ ./setup/run.sh
 ## Sources
 You can specify one or more repositories from which to obtain setup information
 in `sources`. Each line specifies one Git repository.
+
+### Source Repository Structure
+A source repository should be structured as follows:
+```
+├── default_features
+└── features
+    └── [feature name]
+        ├── dependencies
+        └── run.sh
+```
