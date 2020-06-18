@@ -26,3 +26,10 @@ A source repository should be structured as follows:
         ├── dependencies
         └── run.sh
 ```
+
+- `default_features`: A text file in which each line is the name of a feature
+  to be installed by default with this source.
+- `dependencies`: A text file in which each line is the name of a feature that
+  this feature depends on.
+- `run.sh`: A shell script that installs the feature, given that its
+  dependencies are already installed.
