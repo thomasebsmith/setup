@@ -15,7 +15,7 @@ $ ./setup/run.sh
 
 ## Sources
 You can specify one or more repositories from which to obtain setup information
-in `sources`. Each line specifies one Git repository.
+in `sources`. Each line should contain a fully-qualified Git repository URL.
 
 ### Source Repository Structure
 A source repository should be structured as follows:
@@ -32,4 +32,4 @@ A source repository should be structured as follows:
 - `dependencies`: A text file in which each line is the name of a feature that
   this feature depends on.
 - `run.sh`: A shell script that installs the feature, given that its
-  dependencies are already installed.
+  dependencies are already installed. This script can assume POSIX compliance.
