@@ -55,6 +55,39 @@ has_feature() {
 # ones to the list of installed features. Also prints whether each feature is
 # installed.
 check_features() {
+  # Check non-command features
+
+  has_terminal_out="$FALSE"
+  if [ -t 1 ]; then
+    add_feature "terminal-out"
+    has_terminal_out="$TRUE"
+  fi
+
+  has_terminal_colors="$FALSE"
+  if [ -n "$(tput colors 2>/dev/null)" ]; then
+    add_feature "terminal-colors"
+    has_terminal_colors="$TRUE"
+  fi
+
+  if [ "$has_terminal_out" -eq "$FALSE" ] ||
+     [ "$has_terminal_colors" -eq "$FALSE" ]; then
+    red=""
+    green=""
+    reset=""
+  fi
+
+  if [ "$has_terminal_out" -eq "$TRUE" ]; then
+    printf "${green}✓${reset} terminal output\n"
+  else
+    printf "${red}✗${reset} terminal output\n"
+  fi
+
+  if [ "$has_terminal_colors" -eq "$TRUE" ]; then
+    printf "${green}✓${reset} terminal colors\n"
+  else
+    printf "${red}✗${reset} terminal colors\n"
+  fi
+
   # Check commands
   for command in $(echo "$commands"); do
     if command_exists "$command"; then
@@ -65,19 +98,6 @@ check_features() {
     fi
   done
 
-  # Check other features
-  if [ -t 1 ]; then
-    add_feature "terminal-out"
-    printf "${green}✓${reset} terminal output\n"
-  else
-    printf "${red}✗${reset} terminal output\n"
-  fi
-  if [ -n "$(tput colors 2>/dev/null)" ]; then
-    add_feature "terminal-colors"
-    printf "${green}✓${reset} terminal colors\n"
-  else
-    printf "${red}✗${reset} terminal colors\n"
-  fi
 }
 
 # prompt_to_continue(msg, default): Prompts the user to continue with an action,
