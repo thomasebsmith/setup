@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# TRUE and FALSE are defined this way to allow for use of boolean functions
+# in if statements (since a 0 return code indicates success).
 TRUE=0
 FALSE=1
 
@@ -7,6 +9,7 @@ red="$(tput setaf 1 2>/dev/null)"
 green="$(tput setaf 2 2>/dev/null)"
 reset="$(tput sgr0 2>/dev/null)"
 
+# Default commands to check for.
 commands="bash brew bzip2 cargo clang curl csh dash dig emacs ftp g++ gcc\
  gem git go gunzip gzip ifconfig ksh ld less lynx\
  make md5 mount nano node npm java perl ping pip pod python python3 ruby rustc\
@@ -14,12 +17,16 @@ commands="bash brew bzip2 cargo clang curl csh dash dig emacs ftp g++ gcc\
 
 features=""
 
+# command_exists(command): Determines whether <command> is in the user's PATH
+# or otherwise accessible.
 command_exists() {
   cmd="$1"
   type "$cmd" >/dev/null 2>&1
   return "$?"
 }
 
+# add_feature(feature_name): Adds <feature_name> to the list of installed
+# features.
 add_feature() {
   feature="$1"
   if [ "$features" = "" ]; then
@@ -29,6 +36,8 @@ add_feature() {
   fi
 }
 
+# has_feature(feature_name): Determines whether a feature with name
+# <feature_name> has been added to the list of installed features.
 has_feature() {
   feature_to_test="$1"
   ftt_1=" $feature_to_test "
@@ -42,6 +51,9 @@ has_feature() {
   esac
 }
 
+# check_features(): Checks for a default list of features, and adds installed
+# ones to the list of installed features. Also prints whether each feature is
+# installed.
 check_features() {
   # Check commands
   for command in $(echo "$commands"); do
@@ -68,6 +80,10 @@ check_features() {
   fi
 }
 
+# prompt_to_continue(msg, default): Prompts the user to continue with an action,
+# displaying <msg> as the action to continue and using <default> as the default
+# choice if the user does not decide.
+# Returns whether the user chose to continue.
 prompt_to_continue() {
   prompt_msg="$1"
   prompt_default="$2"
@@ -122,6 +138,8 @@ prompt_to_continue() {
   return "$choice_bool"
 }
 
+# get_source(url, source_folder): Clones the repository at <url> into
+# <source_folder>. Then, installs all features in the source repository.
 get_source() {
   url="$1"
   source_folder="$2"
@@ -132,6 +150,8 @@ get_source() {
   fi
 }
 
+# read_sources(): Executes installations for all source repositories found in
+# `sources`.
 read_sources() {
   i=0
   while read -r line <&9; do
