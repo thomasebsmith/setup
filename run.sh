@@ -5,6 +5,9 @@
 TRUE=0
 FALSE=1
 
+# These variables should be enclosed in curly braces when used.
+# For example, to make a line red:
+#   printf "${red}Some red text here${reset}\n"
 red="$(tput setaf 1 2>/dev/null)"
 green="$(tput setaf 2 2>/dev/null)"
 reset="$(tput sgr0 2>/dev/null)"
@@ -173,6 +176,8 @@ get_source() {
 # read_sources(): Executes installations for all source repositories found in
 # `sources`.
 read_sources() {
+  # Use file descriptor 9, since it should be otherwise unused by enclosing or
+  # enclosed code.
   i=0
   while read -r line <&9; do
     get_source "$line" "$i"
@@ -180,6 +185,8 @@ read_sources() {
   done 9<sources
 }
 
+# Navigate to the directory that contains this script
 cd "$(dirname "$0")" || exit 1
+
 check_features
 read_sources
